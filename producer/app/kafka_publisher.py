@@ -1,0 +1,53 @@
+from mongo_connection import ManagerMongo
+import json
+from confluent_kafka import Producer, Message
+import os 
+import asyncio
+
+TOPIC_KAFKA = os.getenv("TOPIC_KAFKA","init_mongo")
+PRODUCER_CONFIG = os.getenv('PRODUCER_CONFIG','{"bootstrap.servers": "localhost:9092"}')
+    
+
+producer = Producer(PRODUCER_CONFIG)
+manger = ManagerMongo()
+
+def delivery_report(err, msg: Message):
+    if err:
+        print(f"❌ Delivery failed: {err}")
+    else:
+        print(f"✅ Delivered {msg.value().decode("utf-8")}")
+        print(f"✅ Delivered to {msg.topic()} : partition {msg.partition()} : at offset {msg.offset()}")
+
+def read_from_mongo():
+    batch_size = 0
+    cursor = 0
+    while True:
+        cursor = manger.collection.find({},skip=batch_size,limit=30)
+        if len(cursor) < 30:
+            break
+        else:
+            batch_size += 30
+            send_batch(cursor)
+
+    if cursor > 0:
+        send_batch(cursor)
+
+def send_batch(batch):
+    for doc in batch:
+        doc_bytes = serialize_data(doc)
+        insert_kafka(doc_bytes)
+        asyncio.sleep(0.5)
+
+def serialize_data(data):
+    return json.dumps(data).encode("utf-8")
+
+def insert_kafka(data:str):
+    producer.produce(
+        topic=TOPIC_KAFKA,
+        value=data,
+        callback=delivery_report
+    )
+
+    
+
+producer.flush()
