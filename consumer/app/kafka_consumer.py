@@ -12,6 +12,9 @@ CONSUMER_CONFIG = {
     "auto.offset.reset": "earliest"
 }
 mysql = Mysql_Manger()
+mysql.create_database()
+mysql.create_table_costumers()
+mysql.create_table_orders()
 
 consumer = Consumer(CONSUMER_CONFIG)
 
@@ -29,7 +32,19 @@ try:
             continue
         
         value = msg.value().decode("utf-8")
-        order = json.loads(value)
+        doc :dict= json.loads(value)
+        if doc['type'] == 'costumer':
+            table_name = doc['type']
+            del doc['type']
+            columns = []
+            values = []
+            for key, value in doc.items():
+                if value:
+                    columns.append(key)
+                    values.append(value)
+            mysql.insert_one(table_name,columns,values)
+
+
         print(f"📦 Received order: {order['quantity']} x {order['item']} from {order['user']}")
 except KeyboardInterrupt:
     print("\n🔴 Stopping consumer")
