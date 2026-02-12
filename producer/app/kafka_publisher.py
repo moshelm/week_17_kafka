@@ -16,15 +16,15 @@ def publisher(manger :ManagerMongo):
     batch_size = 0
     cursor = 0
     while True:
-        cursor = manger.collection.find({},skip=batch_size,limit=30)
-        if len(cursor) < 30:
+        batch = manger.collection.find({},skip=batch_size,limit=30).to_list()
+        if len(batch) < 30:
             break
         else:
             batch_size += 30
-            send_batch(cursor)
-
-    if cursor > 0:
-        send_batch(cursor)
+            send_batch(batch)
+    if len(batch) > 0:
+        send_batch(batch)
+    producer.flush()
 
 def send_batch(batch):
     for doc in batch:
