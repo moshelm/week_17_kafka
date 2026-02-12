@@ -14,7 +14,7 @@ producer = Producer({"bootstrap.servers": PRODUCER_CONFIG})
 
 def publisher(manger :ManagerMongo):
     batch_size = 0
-    cursor = 0
+    batch = 0
     while True:
         batch = manger.collection.find({},skip=batch_size,limit=30).to_list()
         if len(batch) < 30:
@@ -42,7 +42,13 @@ def insert_kafka(data:str):
         value=data,
         callback=delivery_report
     )
-
     
 
-producer.flush()
+def delivery_report(err, msg: Message):
+    if err:
+        print(f"❌ Delivery failed: {err}")
+    else:
+        print(f"✅ Delivered {msg.value().decode("utf-8")}")
+        print(f"✅ Delivered to {msg.topic()} : partition {msg.partition()} : at offset {msg.offset()}")
+
+
