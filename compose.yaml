@@ -35,7 +35,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      
+  api:
+    build: ./api
+    container_name: api
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      consumer:
+        condition: service_healthy
+      producer:
+        condition: service_healthy
+
+
   producer:
     build: ./producer
     container_name: producer
