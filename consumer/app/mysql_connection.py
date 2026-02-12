@@ -66,8 +66,21 @@ class Mysql_Manger():
             cursor.execute(query)
             self.conn.commit()
             cursor.close()
+    def insert_one(self, table_name:str,columns:list,values:list):
+        flags = ','.join(['%s ' *13])
+        query = f"""USE {MYSQL_DATABASE};
+        INSERT INTO {table_name} ({', '.join(columns)})
+        VALUE ({flags})"""
+        
+        with self.conn.cursor() as cursor:
+            cursor.execute(query,tuple(values))
+            res = cursor.fetchall()
+            for record in res:
+                print(record)
+            self.conn.commit()
+            cursor.close()
+
+
+
         
 
-# # create_database()
-# # create_table_costumers()
-# create_table_orders()
