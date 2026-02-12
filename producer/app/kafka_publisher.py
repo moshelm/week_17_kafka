@@ -5,20 +5,14 @@ import os
 import asyncio
 
 TOPIC_KAFKA = os.getenv("TOPIC_KAFKA","init_mongo")
-PRODUCER_CONFIG = os.getenv('PRODUCER_CONFIG','{"bootstrap.servers": "localhost:9092"}')
+PRODUCER_CONFIG = os.getenv('PRODUCER_CONFIG',"localhost:9092")
     
 
-producer = Producer(PRODUCER_CONFIG)
-manger = ManagerMongo()
+producer = Producer({"bootstrap.servers": PRODUCER_CONFIG})
 
-def delivery_report(err, msg: Message):
-    if err:
-        print(f"❌ Delivery failed: {err}")
-    else:
-        print(f"✅ Delivered {msg.value().decode("utf-8")}")
-        print(f"✅ Delivered to {msg.topic()} : partition {msg.partition()} : at offset {msg.offset()}")
 
-def read_from_mongo():
+
+def publisher(manger :ManagerMongo):
     batch_size = 0
     cursor = 0
     while True:
