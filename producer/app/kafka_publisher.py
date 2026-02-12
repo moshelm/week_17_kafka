@@ -28,6 +28,7 @@ def publisher(manger :ManagerMongo):
 
 def send_batch(batch):
     for doc in batch:
+        doc['_id'] = str(doc['_id'])
         doc_bytes = serialize_data(doc)
         insert_kafka(doc_bytes)
         asyncio.sleep(0.5)
