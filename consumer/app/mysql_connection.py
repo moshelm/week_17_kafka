@@ -84,11 +84,9 @@ class Mysql_Manger():
         with conn.cursor() as cursor:
             cursor.execute("SET FOREIGN_KEY_CHECKS=0;")
             cursor.execute(query,tuple(values))
-            res = cursor.fetchall()
-            for record in res:
-                print(record)
-            self.conn.commit()
-            cursor.close()
+            cursor.execute("SET FOREIGN_KEY_CHECKS=1;")
+            conn.commit()
+        conn.close()
 
 
 
