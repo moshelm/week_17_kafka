@@ -76,20 +76,27 @@ services:
   consumer:
     build: ./consumer
     container_name: consumer
-    ports:
-      - "9092:9092"
+    environment:
+      PRODUCER_CONFIG: 'kafka:9092' 
+      TOPIC_KAFKA: 'exe'
+      MYSQL_USER: "user"
+      MYSQL_HOST: "mysql"
+      MYSQL_DATABASE: "db"
+      MYSQL_PORT: "3306"
+      MYSQL_PASSWORD: "password"
     depends_on:
       mysql:
         condition: service_healthy
   mongo:
-    image: mongo:7.0
+    image: mongo:7
     container_name: mongo
     ports:
      - "27017:27017"
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/ --quiet
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
       interval: 10s
       timeout: 5s
       retries: 5    
+
 volumes:
   kafka_kraft:
