@@ -27,16 +27,21 @@ class Mysql_Manger():
         except Exception as e:
             print(f'failed to connection {e}')
 
-    def query(self, query:str, params :dict):
+    def query(self, sql_query: str, params: tuple = None):
         conn = self.get_connection()
+        res = None
         try:
-            with conn.cursor() as cursor:
-                cursor.execute(query,params)
-                res = cursor.fetchall()
-                if res:  
-                    for line in cursor:
-                        print(line)
+            with conn.cursor(dictionary=True) as cursor:
+                cursor.execute(sql_query, params or ())
+                
+                if cursor.with_rows:
+                    res = cursor.fetchall()
+                
                 conn.commit()
+                return res
+                
         except Exception as e:
-            print(f'cursor failed in query {e}')
-        conn.close()
+            print(f"Error executing query: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
