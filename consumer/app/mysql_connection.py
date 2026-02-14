@@ -39,18 +39,18 @@ class Mysql_Manger():
             query = f"""
             CREATE TABLE IF NOT EXISTS customers (
             customerNumber INT AUTO_INCREMENT PRIMARY KEY,
-    customerName VARCHAR(255),
-        contactLastName VARCHAR(255),
-        contactFirstName VARCHAR(255),
-        phone INT,
-        addressLine1 VARCHAR(255),
-        addressLine2 VARCHAR(255),
-        city VARCHAR(255),
-        state VARCHAR(255),
-        postalCode INT,
-        country VARCHAR(255),
-        salesRepEmployeeNumber INT,
-        creditLimit FLOAT ) 
+            customerName VARCHAR(255),
+            contactLastName VARCHAR(255),
+            contactFirstName VARCHAR(255),
+            phone INT,
+            addressLine1 VARCHAR(255),
+            addressLine2 VARCHAR(255),
+            city VARCHAR(255),
+            state VARCHAR(255),
+            postalCode INT,
+            country VARCHAR(255),
+            salesRepEmployeeNumber INT,
+            creditLimit FLOAT ) 
             """
             cursor.execute(query)
             conn.commit()
@@ -63,14 +63,14 @@ class Mysql_Manger():
             query = f"""
             CREATE TABLE IF NOT EXISTS orders
             (id INT AUTO_INCREMENT PRIMARY KEY, 
-        orderNumber INT,
-        orderDate DATE,
-        requiredDate DATE,
-        shippedDate DATE,
-        status VARCHAR(255),
-        comments VARCHAR(255),
-        customerNumber INT,
-        FOREIGN KEY (customerNumber) REFERENCES costumers(customerNumber) )
+            orderNumber INT,
+            orderDate DATE,
+            requiredDate DATE,
+            shippedDate DATE,
+            status VARCHAR(255),
+            comments VARCHAR(255),
+            customerNumber INT,
+            FOREIGN KEY (customerNumber) REFERENCES customers(customerNumber) )
             """
             cursor.execute(query)
             conn.commit()
