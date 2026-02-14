@@ -31,6 +31,7 @@ def send_batch(batch):
         doc['_id'] = str(doc['_id'])
         doc_bytes = serialize_data(doc)
         insert_kafka(doc_bytes)
+        producer.poll(0)
         asyncio.sleep(0.5)
 
 def serialize_data(data):
