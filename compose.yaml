@@ -60,11 +60,19 @@ services:
   producer:
     build: ./producer
     container_name: producer
-    ports:
-      - "9092:9092"
+    environment:
+      PRODUCER_CONFIG: 'kafka:9092' 
+      TOPIC_KAFKA: 'exe'
+      MONGO_URI: "mongodb://mongo:27017"
+      MONGO_DB: "test"
+      MONGO_COLLECTION: "coll"
     depends_on:
       mongo:
         condition: service_healthy
+      kafka:
+        condition: service_started
+        
+      
   consumer:
     build: ./consumer
     container_name: consumer
