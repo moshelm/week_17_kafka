@@ -13,16 +13,11 @@ CONFIG_DB = {
     'host':MYSQL_HOST,
     'port': MYSQL_PORT,
     'password':MYSQL_PASSWORD,
+    'database': MYSQL_DATABASE
 }
 class Mysql_Manger():
-    def __init__(self):
-        self.database = None
-
-
     def get_connection(self):
         try: 
-            if self.database:
-                CONFIG_DB['database'] = MYSQL_DATABASE 
             return connection.MySQLConnection(**CONFIG_DB)
         except Exception as e:
             print(f'failed to connection {e}')
