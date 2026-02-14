@@ -78,12 +78,11 @@ class Mysql_Manger():
             
 
     def insert_one(self, table_name:str,columns:list,values:list):
-        flags = ','.join(['%s ' *13])
-        query = f"""USE {MYSQL_DATABASE};
-        INSERT INTO {table_name} ({', '.join(columns)})
-        VALUE ({flags})"""
-        
-        with self.conn.cursor() as cursor:
+        flags = ', '.join(['%s'] * len(columns))
+        query = f"INSERT IGNORE INTO {table_name} ({', '.join(columns)}) VALUES ({flags})"
+        conn = self.get_connection()
+        with conn.cursor() as cursor:
+            cursor.execute("SET FOREIGN_KEY_CHECKS=0;")
             cursor.execute(query,tuple(values))
             res = cursor.fetchall()
             for record in res:
