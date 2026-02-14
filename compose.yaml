@@ -30,9 +30,15 @@ services:
     container_name: mysql
     ports:
       - "3306:3306"
+    environment:
+            MYSQL_HOST: "mysql"
+            MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+            MYSQL_USER: "user"
+            MYSQL_PASSWORD: "password"
+            MYSQL_DATABASE: "db"
     healthcheck:
-      test: ["ping", "mysqladmin"]
-      interval: 10s
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 15s
       timeout: 5s
       retries: 5
   api:
