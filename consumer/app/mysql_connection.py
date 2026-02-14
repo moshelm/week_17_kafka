@@ -13,7 +13,6 @@ CONFIG_DB = {
     'host':MYSQL_HOST,
     'port': MYSQL_PORT,
     'password':MYSQL_PASSWORD,
-    # 'database': MYSQL_DATABASE
 }
 class Mysql_Manger():
     def __init__(self):
@@ -22,8 +21,9 @@ class Mysql_Manger():
     def create_database(self):
         with self.conn.cursor() as cursor:
             cursor.execute(f'CREATE DATABASE IF NOT EXISTS {MYSQL_DATABASE};')
-            self.conn.commit()
-            cursor.close()
+            self.database = MYSQL_DATABASE
+            conn.commit()
+        conn.close()
             
 
     def create_table_costumers(self):
