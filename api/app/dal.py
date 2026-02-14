@@ -3,7 +3,7 @@ from connection import Mysql_Manger
 db = Mysql_Manger()
 
 def top_customers():
-    query = """SELECTc.customerNumber, 
+    query = """SELECT c.customerNumber, 
     c.customerName, 
     COUNT(o.id) AS total_orders FROM customers c join orders o on c.customerNumber=o.customerNumber
     GROUP BY c.customerNumber, c.customerName
