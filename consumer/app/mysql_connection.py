@@ -16,20 +16,28 @@ CONFIG_DB = {
 }
 class Mysql_Manger():
     def __init__(self):
-        self.conn = connection.MySQLConnection(**CONFIG_DB)
+        self.database = None
+
+
+    def get_connection(self):
+        if self.database:
+            CONFIG_DB['database'] = MYSQL_DATABASE 
+        return connection.MySQLConnection(**CONFIG_DB)
 
     def create_database(self):
-        with self.conn.cursor() as cursor:
+        conn = self.get_connection()
+        with conn.cursor() as cursor:
             cursor.execute(f'CREATE DATABASE IF NOT EXISTS {MYSQL_DATABASE};')
             self.database = MYSQL_DATABASE
             conn.commit()
         conn.close()
             
 
-    def create_table_costumers(self):
-        with self.conn.cursor() as cursor:
-            query = f"""USE {MYSQL_DATABASE};
-            CREATE TABLE IF NOT EXISTS costumers (
+    def create_table_customers(self):
+        conn = self.get_connection()
+        with conn.cursor() as cursor:
+            query = f"""
+            CREATE TABLE IF NOT EXISTS customers (
             customerNumber INT AUTO_INCREMENT PRIMARY KEY,
     customerName VARCHAR(255),
         contactLastName VARCHAR(255),
@@ -45,13 +53,14 @@ class Mysql_Manger():
         creditLimit FLOAT ) 
             """
             cursor.execute(query)
-            self.conn.commit()
-            cursor.close()
+            conn.commit()
+        conn.close()
             
 
     def create_table_orders(self):
-        with self.conn.cursor() as cursor:
-            query = f"""USE {MYSQL_DATABASE};
+        conn = self.get_connection()
+        with conn.cursor() as cursor:
+            query = f"""
             CREATE TABLE IF NOT EXISTS orders
             (id INT AUTO_INCREMENT PRIMARY KEY, 
         orderNumber INT,
@@ -64,8 +73,10 @@ class Mysql_Manger():
         FOREIGN KEY (customerNumber) REFERENCES costumers(customerNumber) )
             """
             cursor.execute(query)
-            self.conn.commit()
-            cursor.close()
+            conn.commit()
+        conn.close()
+            
+
     def insert_one(self, table_name:str,columns:list,values:list):
         flags = ','.join(['%s ' *13])
         query = f"""USE {MYSQL_DATABASE};
