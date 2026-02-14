@@ -18,7 +18,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
 
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
@@ -26,56 +26,78 @@ services:
     volumes:
       - kafka_kraft:/var/lib/kafka/data
   mysql:
-    image: mysql
+    image: mysql:8.0
     container_name: mysql
     ports:
       - "3306:3306"
+    environment:
+            MYSQL_HOST: "mysql"
+            MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+            MYSQL_USER: "user"
+            MYSQL_PASSWORD: "password"
+            MYSQL_DATABASE: "db"
     healthcheck:
-      test: ["ping", "mysqladmin"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 20s
+      timeout: 10s
       retries: 5
+      start_period: 20s
   api:
     build: ./api
     container_name: api
     ports:
       - "8000:8000"
+    environment:
+      MYSQL_USER: "user"
+      MYSQL_HOST: "mysql"
+      MYSQL_DATABASE: "db"
+      MYSQL_PORT: "3306"
+      MYSQL_PASSWORD: "password"
     depends_on:
-      mongo:
-        condition: service_healthy
       mysql:
-        condition: service_healthy
-      consumer:
-        condition: service_healthy
-      producer:
         condition: service_healthy
 
 
   producer:
     build: ./producer
     container_name: producer
-    ports:
-      - "9092:9092"
+    environment:
+      PRODUCER_CONFIG: 'kafka:9092' 
+      TOPIC_KAFKA: 'exe'
+      MONGO_URI: "mongodb://mongo:27017"
+      MONGO_DB: "test"
+      MONGO_COLLECTION: "coll"
     depends_on:
       mongo:
         condition: service_healthy
+      kafka:
+        condition: service_started
+        
+      
   consumer:
     build: ./consumer
     container_name: consumer
-    ports:
-      - "9092:9092"
+    environment:
+      PRODUCER_CONFIG: 'kafka:9092' 
+      TOPIC_KAFKA: 'exe'
+      MYSQL_USER: "user"
+      MYSQL_HOST: "mysql"
+      MYSQL_DATABASE: "db"
+      MYSQL_PORT: "3306"
+      MYSQL_PASSWORD: "password"
     depends_on:
       mysql:
         condition: service_healthy
   mongo:
-    image: mongo:7.0
+    image: mongo:7
     container_name: mongo
     ports:
      - "27017:27017"
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/ --quiet
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
       interval: 10s
       timeout: 5s
       retries: 5    
+
 volumes:
   kafka_kraft:
