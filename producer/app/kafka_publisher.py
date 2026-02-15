@@ -39,6 +39,7 @@ def serialize_data(data):
 
 def insert_kafka(data:str):
     producer.produce(
+        key="_id",
         topic=TOPIC_KAFKA,
         value=data,
         callback=delivery_report
